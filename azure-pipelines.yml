@@ -3,6 +3,11 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
+name: John$(Date:yyyyMMdd)$(Rev:.r)
+
+variables:
+- group: TIPprojectVariableGroup
+
 trigger:
 - master
 
@@ -41,3 +46,23 @@ stages:
           ArtifactName: 'drop'
           publishLocation: 'Container'
         displayName: 'Publish'
+
+
+- stage: TestStage
+  displayName: Test Stage
+  jobs:
+  - job: TestPage
+    displayName: 'Test Page'
+    steps:
+
+      - task: PowerShell@2
+        name: LoginToAzureCLI
+        displayName: 'Login to Azure CLI'
+        inputs:
+          targetType: 'inline'
+          script: |        
+            az login --service-principal `
+            -u $(serviceprincipalid) `
+            -p $(serviceprincipalpw) `
+            -t ${env:TENANT}
+
